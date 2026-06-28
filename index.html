@@ -27,6 +27,7 @@
             font-family: 'Space Grotesk', system-ui, sans-serif;
             background: var(--bg);
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -62,22 +63,23 @@
             z-index: 1;
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 24px;
+            border-radius: 28px;
             padding: 2.5rem;
-            width: 90%;
-            max-width: 440px;
+            width: 92%;
+            max-width: 560px;
             box-shadow: 0 0 0 1px rgba(124,58,237,0.15), 0 24px 64px rgba(0,0,0,0.5);
         }
 
+        /* ── Header ── */
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.75rem;
+            margin-bottom: 1.5rem;
         }
 
         .title {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 700;
             letter-spacing: 0.12em;
             text-transform: uppercase;
@@ -87,8 +89,8 @@
         .progress-wrap { display: flex; gap: 6px; }
 
         .progress-dot {
-            width: 28px;
-            height: 4px;
+            width: 32px;
+            height: 5px;
             border-radius: 99px;
             background: var(--border);
             transition: background 0.3s ease;
@@ -96,34 +98,19 @@
         .progress-dot.done   { background: var(--primary); }
         .progress-dot.active { background: var(--primary-light); }
 
-        .question-number {
-            font-size: 0.7rem;
-            color: var(--muted);
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 0.4rem;
-        }
-
-        #question {
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: var(--text);
-            letter-spacing: -0.03em;
-            margin-bottom: 0.25rem;
-            line-height: 1;
-        }
-
-        .question-hint {
-            font-size: 0.8rem;
-            color: var(--muted);
-            margin-bottom: 1.75rem;
+        /* ── Timer ── */
+        .timer-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
         }
 
         .timer-bar-wrap {
-            height: 3px;
+            flex: 1;
+            height: 4px;
             background: var(--border);
             border-radius: 99px;
-            margin-bottom: 1.5rem;
             overflow: hidden;
         }
 
@@ -135,25 +122,62 @@
         }
         .timer-bar.urgent { background: linear-gradient(90deg, var(--wrong), #f97316); }
 
+        .timer-countdown {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--muted);
+            min-width: 28px;
+            text-align: right;
+            transition: color 0.3s;
+        }
+        .timer-countdown.urgent { color: var(--wrong); }
+
+        /* ── Question ── */
+        .question-number {
+            font-size: 0.72rem;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+
+        #question {
+            font-size: clamp(2.2rem, 6vw, 3.2rem);
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.03em;
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .question-hint {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 1.75rem;
+        }
+
+        /* ── Options ── */
         #options {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 0;
         }
 
         .option-label {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 14px 16px;
+            gap: 12px;
+            padding: 16px 18px;
             border: 1.5px solid var(--border);
             background: rgba(255,255,255,0.02);
-            border-radius: 14px;
+            border-radius: 16px;
             cursor: pointer;
             transition: all 0.18s ease;
             user-select: none;
             animation: popIn 0.2s ease backwards;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .option-label:nth-child(1) { animation-delay: 0.05s; }
@@ -161,48 +185,61 @@
         .option-label:nth-child(3) { animation-delay: 0.15s; }
         .option-label:nth-child(4) { animation-delay: 0.20s; }
 
-        .option-label:hover {
+        .option-label:hover,
+        .option-label:active {
             border-color: var(--primary);
             background: rgba(124,58,237,0.08);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
 
         .option-label.correct {
             border-color: var(--correct);
-            background: rgba(34,197,94,0.1);
+            background: rgba(34,197,94,0.12);
+            transform: none;
         }
 
         .option-label.wrong {
             border-color: var(--wrong);
             background: rgba(239,68,68,0.1);
-            animation: wrongShake 0.3s ease;
+            animation: wrongShake 0.35s ease;
         }
 
         .option-label.disabled {
             pointer-events: none;
-            opacity: 0.5;
+        }
+
+        .option-label.disabled:not(.correct):not(.wrong) {
+            opacity: 0.4;
         }
 
         .option-key {
-            width: 26px;
-            height: 26px;
-            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
             background: rgba(255,255,255,0.06);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             font-weight: 700;
             color: var(--muted);
             flex-shrink: 0;
             transition: all 0.18s;
         }
 
-        .option-label:hover .option-key { background: var(--primary); color: white; }
+        .option-label:hover .option-key,
+        .option-label:active .option-key { background: var(--primary); color: white; }
+        .option-label.correct .option-key { background: var(--correct); color: white; }
+        .option-label.wrong   .option-key { background: var(--wrong);   color: white; }
 
-        .option-val { font-size: 1.1rem; font-weight: 700; }
+        .option-val {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: 700;
+        }
+
         .option-label input { display: none; }
 
+        /* ── Score bar ── */
         .score-bar {
             display: flex;
             align-items: center;
@@ -212,21 +249,97 @@
             border-top: 1px solid var(--border);
         }
 
-        .score-label { font-size: 0.75rem; color: var(--muted); }
-        .score-val   { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
+        .score-label { font-size: 0.78rem; color: var(--muted); }
+        .score-val   { font-size: 0.95rem; font-weight: 700; color: var(--accent); }
 
-        .streak { font-size: 0.75rem; color: var(--accent); font-weight: 700; display: none; }
+        .streak { font-size: 0.78rem; color: var(--accent); font-weight: 700; display: none; }
         .streak.show { display: block; }
 
+        /* ── Result screen ── */
+        #result-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: var(--bg);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        #result-screen.show { display: flex; }
+
+        .result-emoji { font-size: 4rem; margin-bottom: 1rem; }
+
+        .result-title {
+            font-size: clamp(1.6rem, 5vw, 2.4rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .result-sub {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 2rem;
+        }
+
+        .result-score {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.03em;
+        }
+
+        .result-score-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 2.5rem;
+        }
+
+        .play-again-btn {
+            padding: 14px 36px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 24px var(--primary-glow);
+        }
+
+        .play-again-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+
+        /* ── Jumpscare ── */
         #jumpscare {
             display: none;
             position: fixed;
             inset: 0;
             background: black;
             z-index: 9999;
+            cursor: pointer;
         }
         #jumpscare img { width: 100%; height: 100%; object-fit: cover; }
 
+        #jumpscare .restart-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.4);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* ── Flash ── */
         .feedback-flash {
             position: fixed;
             inset: 0;
@@ -239,32 +352,57 @@
         .feedback-flash.wrong-flash   { background: rgba(239,68,68,0.12); }
         .feedback-flash.show          { opacity: 1; }
 
+        /* ── Animations ── */
         @keyframes wrongShake {
             0%,100% { transform: translateX(0); }
-            25%     { transform: translateX(-4px); }
-            75%     { transform: translateX(4px); }
+            20%     { transform: translateX(-5px); }
+            40%     { transform: translateX(5px); }
+            60%     { transform: translateX(-3px); }
+            80%     { transform: translateX(3px); }
         }
 
         @keyframes popIn {
-            0%   { transform: scale(0.92); opacity: 0; }
-            100% { transform: scale(1);    opacity: 1; }
+            0%   { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1);   opacity: 1; }
         }
 
         @keyframes bodyShake {
             0%   { transform: translate(0,0) rotate(0deg); }
-            10%  { transform: translate(-6px,-4px) rotate(-1deg); }
-            20%  { transform: translate(6px,4px) rotate(1deg); }
-            30%  { transform: translate(-8px,2px) rotate(-1.5deg); }
-            40%  { transform: translate(8px,-2px) rotate(1.5deg); }
-            50%  { transform: translate(-4px,6px) rotate(-0.5deg); }
-            60%  { transform: translate(4px,-6px) rotate(0.5deg); }
-            70%  { transform: translate(-6px,2px) rotate(-1deg); }
-            80%  { transform: translate(6px,-2px) rotate(1deg); }
-            90%  { transform: translate(-3px,4px) rotate(-0.5deg); }
+            10%  { transform: translate(-8px,-5px) rotate(-1.5deg); }
+            20%  { transform: translate(8px,5px) rotate(1.5deg); }
+            30%  { transform: translate(-10px,3px) rotate(-2deg); }
+            40%  { transform: translate(10px,-3px) rotate(2deg); }
+            50%  { transform: translate(-5px,8px) rotate(-1deg); }
+            60%  { transform: translate(5px,-8px) rotate(1deg); }
+            70%  { transform: translate(-8px,3px) rotate(-1.5deg); }
+            80%  { transform: translate(8px,-3px) rotate(1.5deg); }
+            90%  { transform: translate(-4px,5px) rotate(-0.5deg); }
             100% { transform: translate(0,0) rotate(0deg); }
         }
 
-        .shaking { animation: bodyShake 0.08s infinite; }
+        .shaking { animation: bodyShake 0.07s infinite; }
+
+        /* ── Tablet tweaks (600px+) ── */
+        @media (min-width: 600px) {
+            #game-container { padding: 3rem 3.5rem; }
+
+            #question { font-size: 3.4rem; }
+
+            #options { gap: 14px; }
+
+            .option-label { padding: 20px 22px; border-radius: 18px; gap: 14px; }
+
+            .option-key { width: 34px; height: 34px; font-size: 0.78rem; border-radius: 10px; }
+
+            .option-val { font-size: 1.25rem; }
+
+            .progress-dot { width: 36px; height: 5px; }
+        }
+
+        /* ── Large tablet / small desktop (900px+) ── */
+        @media (min-width: 900px) {
+            #game-container { max-width: 640px; padding: 3.5rem 4rem; }
+        }
     </style>
 </head>
 <body>
@@ -277,8 +415,11 @@
         <div class="progress-wrap" id="progress"></div>
     </div>
 
-    <div class="timer-bar-wrap">
-        <div class="timer-bar" id="timer-bar"></div>
+    <div class="timer-row">
+        <div class="timer-bar-wrap">
+            <div class="timer-bar" id="timer-bar"></div>
+        </div>
+        <span class="timer-countdown" id="timer-count">15</span>
     </div>
 
     <div class="question-number" id="q-num">Question 1 of 5</div>
@@ -287,15 +428,26 @@
 
     <div id="options"></div>
 
-    <div class="score-bar"x>
+    <div class="score-bar">
         <span class="score-label">Score</span>
         <span class="streak" id="streak">🔥 Streak!</span>
         <span class="score-val" id="score-display">0 pts</span>
     </div>
 </div>
 
+<!-- Result screen shown before jumpscare -->
+<div id="result-screen">
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="result-title" id="result-title">Quiz Complete!</div>
+    <div class="result-sub" id="result-sub">Here's how you did</div>
+    <div class="result-score" id="result-score">0</div>
+    <div class="result-score-label">points</div>
+    <button class="play-again-btn" onclick="startScare()">Continue →</button>
+</div>
+
 <div id="jumpscare">
     <img src="https://i.pinimg.com/originals/c3/fe/8a/c3fe8a0d6bcbcdeeb4d310e4f5e598e4.jpg" alt="BOO!">
+    <span class="restart-hint">tap anywhere to play again</span>
 </div>
 
 <audio id="scream-sound" src="music/scream.mp3" preload="auto"></audio>
@@ -312,17 +464,18 @@
     const TIMER_SECONDS = 15;
     const POINTS_PER_CORRECT = 100;
 
-    let current = 0, score = 0, streak = 0;
+    let current = 0, score = 0, streak = 0, bestStreak = 0, correct = 0;
     let timerInterval = null, timeLeft = TIMER_SECONDS, answered = false;
 
-    const questionEl = document.getElementById('question');
-    const qNumEl     = document.getElementById('q-num');
-    const optionsEl  = document.getElementById('options');
-    const timerBarEl = document.getElementById('timer-bar');
-    const scoreEl    = document.getElementById('score-display');
-    const streakEl   = document.getElementById('streak');
-    const progressEl = document.getElementById('progress');
-    const flashEl    = document.getElementById('flash');
+    const questionEl   = document.getElementById('question');
+    const qNumEl       = document.getElementById('q-num');
+    const optionsEl    = document.getElementById('options');
+    const timerBarEl   = document.getElementById('timer-bar');
+    const timerCountEl = document.getElementById('timer-count');
+    const scoreEl      = document.getElementById('score-display');
+    const streakEl     = document.getElementById('streak');
+    const progressEl   = document.getElementById('progress');
+    const flashEl      = document.getElementById('flash');
 
     function buildProgress() {
         progressEl.innerHTML = '';
@@ -347,7 +500,10 @@
     function updateTimerBar() {
         const pct = Math.max(0, (timeLeft / TIMER_SECONDS) * 100);
         timerBarEl.style.width = pct + '%';
-        timerBarEl.classList.toggle('urgent', timeLeft < 5);
+        const urgent = timeLeft < 5;
+        timerBarEl.classList.toggle('urgent', urgent);
+        timerCountEl.classList.toggle('urgent', urgent);
+        timerCountEl.textContent = Math.ceil(Math.max(0, timeLeft));
     }
 
     function autoWrong() {
@@ -355,7 +511,7 @@
         disableOptions();
         streak = 0;
         streakEl.classList.remove('show');
-        flash('wrong');
+        doFlash('wrong');
         setTimeout(() => nextQuestion(), 900);
     }
 
@@ -395,47 +551,77 @@
         answered = true;
         disableOptions();
 
-        const correct = questions[current].a;
+        const ans = questions[current].a;
 
-        if (val === correct) {
+        if (val === ans) {
+            correct++;
             selectedLabel.classList.add('correct');
             const bonus = Math.round(timeLeft / TIMER_SECONDS * 50);
             score += POINTS_PER_CORRECT + bonus;
             streak++;
+            if (streak > bestStreak) bestStreak = streak;
             scoreEl.textContent = score + ' pts';
             streakEl.textContent = streak >= 2 ? `🔥 ${streak}× Streak!` : '🔥 Streak!';
             streakEl.classList.toggle('show', streak >= 1);
-            flash('correct');
+            doFlash('correct');
             setTimeout(() => nextQuestion(), 700);
         } else {
             selectedLabel.classList.add('wrong');
             document.querySelectorAll('.option-label').forEach(lbl => {
-                if (parseInt(lbl.querySelector('input').value) === correct) lbl.classList.add('correct');
+                if (parseInt(lbl.querySelector('input').value) === ans) lbl.classList.add('correct');
             });
             streak = 0;
             streakEl.classList.remove('show');
-            flash('wrong');
+            doFlash('wrong');
             setTimeout(() => nextQuestion(), 900);
         }
     }
 
-    function flash(type) {
+    function doFlash(type) {
         flashEl.className = 'feedback-flash ' + (type === 'correct' ? 'correct-flash' : 'wrong-flash') + ' show';
         setTimeout(() => flashEl.className = 'feedback-flash', 350);
     }
 
     function nextQuestion() {
         current++;
-        if (current < questions.length) loadQuestion();
-        else triggerScare();
+        if (current < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
     }
 
-    function triggerScare() {
+    function showResults() {
         document.getElementById('game-container').style.display = 'none';
+        const pct = Math.round(correct / questions.length * 100);
+        let emoji = '💀', title = 'Ouch...', sub = `${correct}/${questions.length} correct`;
+        if (pct === 100) { emoji = '🏆'; title = 'Perfect Score!'; sub = 'You got them all right!'; }
+        else if (pct >= 60) { emoji = '😎'; title = 'Nice Work!'; sub = `${correct}/${questions.length} correct`; }
+
+        document.getElementById('result-emoji').textContent = emoji;
+        document.getElementById('result-title').textContent = title;
+        document.getElementById('result-sub').textContent = sub + (bestStreak >= 2 ? ` · Best streak: ${bestStreak}🔥` : '');
+        document.getElementById('result-score').textContent = score;
+        document.getElementById('result-screen').classList.add('show');
+    }
+
+    function startScare() {
+        document.getElementById('result-screen').classList.remove('show');
         document.getElementById('jumpscare').style.display = 'block';
         document.getElementById('scream-sound').play().catch(() => {});
         document.body.classList.add('shaking');
     }
+
+    document.getElementById('jumpscare').addEventListener('click', () => {
+        document.getElementById('jumpscare').style.display = 'none';
+        document.body.classList.remove('shaking');
+        // Reset
+        current = 0; score = 0; streak = 0; bestStreak = 0; correct = 0;
+        scoreEl.textContent = '0 pts';
+        streakEl.classList.remove('show');
+        document.getElementById('game-container').style.display = '';
+        loadQuestion();
+    });
 
     // Keyboard A/B/C/D shortcuts
     document.addEventListener('keydown', e => {
