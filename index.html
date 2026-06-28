@@ -5,228 +5,450 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quick Math Challenge!</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&display=swap');
+
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent: #10b981;
+            --primary: #7c3aed;
+            --primary-light: #a855f7;
+            --primary-glow: rgba(124, 58, 237, 0.35);
+            --bg: #09090f;
+            --card-bg: #12121e;
+            --border: rgba(255,255,255,0.07);
+            --text: #f1f0ff;
+            --muted: #6b6b8a;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+            --accent: #f59e0b;
         }
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
-            background-image:
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            background: var(--bg);
             min-height: 100vh;
-            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
-            color: var(--text-main);
+            color: var(--text);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 60% 40%, rgba(124,58,237,0.12) 0%, transparent 55%),
+                        radial-gradient(ellipse at 20% 80%, rgba(168,85,247,0.07) 0%, transparent 45%);
+            pointer-events: none;
         }
 
         #game-container {
-            background: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 420px;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
             position: relative;
+            z-index: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: 0 0 0 1px rgba(124,58,237,0.15), 0 24px 64px rgba(0,0,0,0.5);
         }
 
-        h1 {
-            color: var(--text-main);
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.025em;
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
         }
 
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
+        .title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--primary-light);
+        }
+
+        .progress-wrap { display: flex; gap: 6px; }
+
+        .progress-dot {
+            width: 28px;
+            height: 4px;
+            border-radius: 99px;
+            background: var(--border);
+            transition: background 0.3s ease;
+        }
+        .progress-dot.done   { background: var(--primary); }
+        .progress-dot.active { background: var(--primary-light); }
+
+        .question-number {
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
         }
 
         #question {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            color: var(--text-main);
+            font-size: 2.8rem;
             font-weight: 800;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            color: var(--text);
+            letter-spacing: -0.03em;
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .question-hint {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 1.75rem;
+        }
+
+        .timer-bar-wrap {
+            height: 3px;
+            background: var(--border);
+            border-radius: 99px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .timer-bar {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            transition: width 0.1s linear, background 0.5s;
+        }
+        .timer-bar.urgent { background: linear-gradient(90deg, var(--wrong), #f97316); }
+
+        #options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 0;
         }
 
         .option-label {
             display: flex;
             align-items: center;
-            font-size: 1.1rem;
+            gap: 10px;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            background: rgba(255,255,255,0.02);
+            border-radius: 14px;
             cursor: pointer;
-            padding: 14px 20px;
-            border: 2px solid rgba(255,255,255,0.05);
-            background: rgba(255,255,255,0.03);
-            border-radius: 12px;
-            margin-bottom: 12px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            text-align: left;
-            color: var(--text-main);
+            transition: all 0.18s ease;
             user-select: none;
+            animation: popIn 0.2s ease backwards;
         }
+
+        .option-label:nth-child(1) { animation-delay: 0.05s; }
+        .option-label:nth-child(2) { animation-delay: 0.10s; }
+        .option-label:nth-child(3) { animation-delay: 0.15s; }
+        .option-label:nth-child(4) { animation-delay: 0.20s; }
 
         .option-label:hover {
-            background: rgba(255,255,255,0.08);
             border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .option-label input {
-            margin-right: 15px;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-        }
-
-        button {
-            width: 100%;
-            padding: 16px;
-            font-size: 1.1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
-            margin-top: 1rem;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-
-        button:hover {
-            background: var(--primary-dark);
+            background: rgba(124,58,237,0.08);
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
         }
 
-        button:active {
-            transform: translateY(0);
+        .option-label.correct {
+            border-color: var(--correct);
+            background: rgba(34,197,94,0.1);
         }
 
-        /* Jumpscare Styles */
+        .option-label.wrong {
+            border-color: var(--wrong);
+            background: rgba(239,68,68,0.1);
+            animation: wrongShake 0.3s ease;
+        }
+
+        .option-label.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .option-key {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--muted);
+            flex-shrink: 0;
+            transition: all 0.18s;
+        }
+
+        .option-label:hover .option-key { background: var(--primary); color: white; }
+
+        .option-val { font-size: 1.1rem; font-weight: 700; }
+        .option-label input { display: none; }
+
+        .score-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .score-label { font-size: 0.75rem; color: var(--muted); }
+        .score-val   { font-size: 0.9rem; font-weight: 700; color: var(--accent); }
+
+        .streak { font-size: 0.75rem; color: var(--accent); font-weight: 700; display: none; }
+        .streak.show { display: block; }
+
         #jumpscare {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: black;
+            inset: 0;
+            background: black;
             z-index: 9999;
         }
-        #jumpscare img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        #jumpscare img { width: 100%; height: 100%; object-fit: cover; }
+
+        .feedback-flash {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.1s;
         }
+        .feedback-flash.correct-flash { background: rgba(34,197,94,0.12); }
+        .feedback-flash.wrong-flash   { background: rgba(239,68,68,0.12); }
+        .feedback-flash.show          { opacity: 1; }
+
+        @keyframes wrongShake {
+            0%,100% { transform: translateX(0); }
+            25%     { transform: translateX(-4px); }
+            75%     { transform: translateX(4px); }
+        }
+
+        @keyframes popIn {
+            0%   { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1);    opacity: 1; }
+        }
+
+        @keyframes bodyShake {
+            0%   { transform: translate(0,0) rotate(0deg); }
+            10%  { transform: translate(-6px,-4px) rotate(-1deg); }
+            20%  { transform: translate(6px,4px) rotate(1deg); }
+            30%  { transform: translate(-8px,2px) rotate(-1.5deg); }
+            40%  { transform: translate(8px,-2px) rotate(1.5deg); }
+            50%  { transform: translate(-4px,6px) rotate(-0.5deg); }
+            60%  { transform: translate(4px,-6px) rotate(0.5deg); }
+            70%  { transform: translate(-6px,2px) rotate(-1deg); }
+            80%  { transform: translate(6px,-2px) rotate(1deg); }
+            90%  { transform: translate(-3px,4px) rotate(-0.5deg); }
+            100% { transform: translate(0,0) rotate(0deg); }
+        }
+
+        .shaking { animation: bodyShake 0.08s infinite; }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <h1>Math Quiz</h1>
-        <p>Answer quickly to win!</p>
-        <div id="question">5 + 7 = ?</div>
-        <div id="options" style="display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 1rem;">
-            <!-- Options will be generated here -->
-        </div>
-        <button onclick="checkAnswer()">Submit</button>
+<div class="feedback-flash" id="flash"></div>
+
+<div id="game-container">
+    <div class="header">
+        <span class="title">⚡ Math Sprint</span>
+        <div class="progress-wrap" id="progress"></div>
     </div>
 
-    <div id="jumpscare">
-        <!-- REPLACE 'scary-image.jpg' with your actual image URL -->
-        <img src="data:image/jpeg;base64,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" id="scare-img">
+    <div class="timer-bar-wrap">
+        <div class="timer-bar" id="timer-bar"></div>
     </div>
 
-    <!-- REPLACE 'scream.mp3' with your actual sound URL -->
-    <audio id="scream-sound" src="/music/scream.mp3" preload="auto"></audio>
+    <div class="question-number" id="q-num">Question 1 of 5</div>
+    <div id="question">5 + 7 = ?</div>
+    <div class="question-hint">Tap an answer to lock it in</div>
 
-    <script>
-        const questions = [
-            { q: "5 + 7", a: 12, options: [10, 12, 14, 15] },
-            { q: "12 - 4", a: 8, options: [6, 7, 8, 9] },
-            { q: "3 * 3", a: 9, options: [6, 9, 12, 18] },
-            { q: "10 / 2", a: 5, options: [2, 4, 5, 10] },
-            { q: "15 + 18", a: 33, options: [30, 31, 33, 35] }
-        ];
+    <div id="options"></div>
 
-        let currentQuestion = 0;
+    <div class="score-bar"x>
+        <span class="score-label">Score</span>
+        <span class="streak" id="streak">🔥 Streak!</span>
+        <span class="score-val" id="score-display">0 pts</span>
+    </div>
+</div>
 
-        function updateQuestion() {
-            const qData = questions[currentQuestion];
-            document.getElementById('question').innerText = qData.q + " = ?";
+<div id="jumpscare">
+    <img src="https://i.pinimg.com/originals/c3/fe/8a/c3fe8a0d6bcbcdeeb4d310e4f5e598e4.jpg" alt="BOO!">
+</div>
 
-            const optionsDiv = document.getElementById('options');
-            optionsDiv.innerHTML = "";
+<audio id="scream-sound" src="music/scream.mp3" preload="auto"></audio>
 
-            qData.options.forEach((opt, index) => {
-                const label = String.fromCharCode(65 + index); // A, B, C, D
-                optionsDiv.innerHTML += `
-                    <label class="option-label">
-                        <input type="radio" name="math-opt" value="${opt}"> ${label}: ${opt}
-                    </label>
-                `;
+<script>
+    const questions = [
+        { q: "5 + 7",   a: 12, options: [10, 12, 14, 15] },
+        { q: "12 − 4",  a: 8,  options: [6, 7, 8, 9] },
+        { q: "3 × 3",   a: 9,  options: [6, 9, 12, 18] },
+        { q: "10 ÷ 2",  a: 5,  options: [2, 4, 5, 10] },
+        { q: "15 + 18", a: 33, options: [30, 31, 33, 35] }
+    ];
+
+    const TIMER_SECONDS = 15;
+    const POINTS_PER_CORRECT = 100;
+
+    let current = 0, score = 0, streak = 0;
+    let timerInterval = null, timeLeft = TIMER_SECONDS, answered = false;
+
+    const questionEl = document.getElementById('question');
+    const qNumEl     = document.getElementById('q-num');
+    const optionsEl  = document.getElementById('options');
+    const timerBarEl = document.getElementById('timer-bar');
+    const scoreEl    = document.getElementById('score-display');
+    const streakEl   = document.getElementById('streak');
+    const progressEl = document.getElementById('progress');
+    const flashEl    = document.getElementById('flash');
+
+    function buildProgress() {
+        progressEl.innerHTML = '';
+        questions.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'progress-dot' + (i < current ? ' done' : i === current ? ' active' : '');
+            progressEl.appendChild(dot);
+        });
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = TIMER_SECONDS;
+        updateTimerBar();
+        timerInterval = setInterval(() => {
+            timeLeft -= 0.1;
+            updateTimerBar();
+            if (timeLeft <= 0) { clearInterval(timerInterval); if (!answered) autoWrong(); }
+        }, 100);
+    }
+
+    function updateTimerBar() {
+        const pct = Math.max(0, (timeLeft / TIMER_SECONDS) * 100);
+        timerBarEl.style.width = pct + '%';
+        timerBarEl.classList.toggle('urgent', timeLeft < 5);
+    }
+
+    function autoWrong() {
+        answered = true;
+        disableOptions();
+        streak = 0;
+        streakEl.classList.remove('show');
+        flash('wrong');
+        setTimeout(() => nextQuestion(), 900);
+    }
+
+    function disableOptions() {
+        document.querySelectorAll('.option-label').forEach(l => l.classList.add('disabled'));
+    }
+
+    function loadQuestion() {
+        answered = false;
+        const qd = questions[current];
+        qNumEl.textContent = `Question ${current + 1} of ${questions.length}`;
+        questionEl.textContent = qd.q + ' = ?';
+        buildProgress();
+
+        const shuffled = [...qd.options].sort(() => Math.random() - 0.5);
+        optionsEl.innerHTML = '';
+        shuffled.forEach((opt, i) => {
+            const key = ['A','B','C','D'][i];
+            const lbl = document.createElement('label');
+            lbl.className = 'option-label';
+            lbl.style.animationDelay = (i * 0.05 + 0.05) + 's';
+            lbl.innerHTML = `
+                <input type="radio" name="math-opt" value="${opt}">
+                <span class="option-key">${key}</span>
+                <span class="option-val">${opt}</span>
+            `;
+            lbl.addEventListener('click', () => submitAnswer(opt, lbl));
+            optionsEl.appendChild(lbl);
+        });
+
+        startTimer();
+    }
+
+    function submitAnswer(val, selectedLabel) {
+        if (answered) return;
+        clearInterval(timerInterval);
+        answered = true;
+        disableOptions();
+
+        const correct = questions[current].a;
+
+        if (val === correct) {
+            selectedLabel.classList.add('correct');
+            const bonus = Math.round(timeLeft / TIMER_SECONDS * 50);
+            score += POINTS_PER_CORRECT + bonus;
+            streak++;
+            scoreEl.textContent = score + ' pts';
+            streakEl.textContent = streak >= 2 ? `🔥 ${streak}× Streak!` : '🔥 Streak!';
+            streakEl.classList.toggle('show', streak >= 1);
+            flash('correct');
+            setTimeout(() => nextQuestion(), 700);
+        } else {
+            selectedLabel.classList.add('wrong');
+            document.querySelectorAll('.option-label').forEach(lbl => {
+                if (parseInt(lbl.querySelector('input').value) === correct) lbl.classList.add('correct');
             });
+            streak = 0;
+            streakEl.classList.remove('show');
+            flash('wrong');
+            setTimeout(() => nextQuestion(), 900);
         }
+    }
 
-        function checkAnswer() {
-            const selected = document.querySelector('input[name="math-opt"]:checked');
-            if (!selected) {
-                alert("Please select an answer!");
-                return;
-            }
+    function flash(type) {
+        flashEl.className = 'feedback-flash ' + (type === 'correct' ? 'correct-flash' : 'wrong-flash') + ' show';
+        setTimeout(() => flashEl.className = 'feedback-flash', 350);
+    }
 
-            const val = parseInt(selected.value);
+    function nextQuestion() {
+        current++;
+        if (current < questions.length) loadQuestion();
+        else triggerScare();
+    }
 
-            if (val === questions[currentQuestion].a) {
-                currentQuestion++;
-                if (currentQuestion < questions.length) {
-                    updateQuestion();
-                } else {
-                    triggerScare();
-                }
-            } else {
-                alert("Wrong! Try again.");
-            }
+    function triggerScare() {
+        document.getElementById('game-container').style.display = 'none';
+        document.getElementById('jumpscare').style.display = 'block';
+        document.getElementById('scream-sound').play().catch(() => {});
+        document.body.classList.add('shaking');
+    }
+
+    // Keyboard A/B/C/D shortcuts
+    document.addEventListener('keydown', e => {
+        if (answered) return;
+        const map = { 'a': 0, 'b': 1, 'c': 2, 'd': 3 };
+        if (e.key.toLowerCase() in map) {
+            const labels = document.querySelectorAll('.option-label');
+            const idx = map[e.key.toLowerCase()];
+            if (labels[idx]) labels[idx].click();
         }
+    });
 
-        function triggerScare() {
-            document.getElementById('game-container').style.display = 'none';
-            const scareDiv = document.getElementById('jumpscare');
-            scareDiv.style.display = 'block';
-            const sound = document.getElementById('scream-sound');
-            sound.play();
-            document.body.style.animation = "shake 0.1s infinite";
-        }
-
-        // Initialize first question
-        updateQuestion();
-    </script>
-
-    <style>
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            40% { transform: translate(3px, 2px) rotate(-1deg); }
-            60% { transform: translate(-1px, -1px) rotate(1deg); }
-            80% { transform: translate(-3px, 1px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-    </style>
+    loadQuestion();
+</script>
 </body>
 </html>
